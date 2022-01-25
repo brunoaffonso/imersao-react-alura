@@ -73,7 +73,7 @@ export default function PaginaInicial() {
           justifyContent: 'center',
           backgroundColor: appConfig.theme.colors.primary[500],
           backgroundImage:
-            'url(https://virtualbackgrounds.site/wp-content/uploads/2020/08/the-matrix-digital-rain.jpg)',
+            'url(https://images.unsplash.com/photo-1508175911810-a4817cd3d7b4?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2071&q=80)',
           backgroundRepeat: 'no-repeat',
           backgroundSize: 'cover',
           backgroundBlendMode: 'multiply',
@@ -110,7 +110,7 @@ export default function PaginaInicial() {
               marginBottom: '32px',
             }}
           >
-            <Title tag="h2">Boas vindas de volta!</Title>
+            <Title tag="h2">Vamos falar de F1!</Title>
             <Text
               variant="body3"
               styleSheet={{
