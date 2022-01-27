@@ -1,21 +1,37 @@
 import { Box, Text, TextField, Image, Button } from '@skynexui/components';
 import React from 'react';
 import appConfig from '../config.json';
+import { createClient } from '@supabase/supabase-js';
+
+// credenciais aqui
 
 export default function ChatPage() {
   const [mensagem, setMensagem] = React.useState('');
   const [listaDeMensagens, setListaDeMensagens] = React.useState([]);
-  const [idCounter, setIdCounter] = React.useState(0);
+
+  React.useEffect(() => {
+    supabaseClient
+      .from('mensagens')
+      .select('*')
+      .then(({ data }) => {
+        setListaDeMensagens(data);
+      });
+  }, []);
   // Sua lógica vai aqui
   function handleNovaMensagem(novaMensagem) {
     const mensagem = {
-      id: idCounter,
       de: 'brunoaffonso',
       texto: novaMensagem,
     };
+
+    supabaseClient
+      .from('mensagens')
+      .insert([mensagem])
+      .then((response) => {
+        console.log(response);
+      });
     setListaDeMensagens([mensagem, ...listaDeMensagens]);
     setMensagem('');
-    setIdCounter(idCounter + 1);
   }
 
   function deletaMensagem(idMensagem) {
