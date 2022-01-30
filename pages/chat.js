@@ -1,48 +1,81 @@
 import { Box, Text, TextField, Image, Button } from '@skynexui/components';
 import React from 'react';
 import appConfig from '../config.json';
+import { useRouter } from 'next/router';
 import { createClient } from '@supabase/supabase-js';
+import { ButtonSendSticker } from '../src/components/ButtonSendSticker';
+import { SUPABASE_ANON_KEY, SUPABASE_URL } from '../.env';
 
-// credenciais aqui
+// Criar arquivo .env.js e colocar as Keys SUPABASE_URL e SUPABASE_ANON_KEY
+const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 export default function ChatPage() {
+  const roteamento = useRouter();
+  const usuarioLogado = roteamento.query.username;
   const [mensagem, setMensagem] = React.useState('');
   const [listaDeMensagens, setListaDeMensagens] = React.useState([]);
 
-  React.useEffect(() => {
+  function atualizaMensagens() {
     supabaseClient
       .from('mensagens')
       .select('*')
+      .order('id', { ascending: false })
       .then(({ data }) => {
         setListaDeMensagens(data);
       });
+  }
+
+  function escutaMensagemEmTempoReal(adicionaMensagem) {
+    return supabaseClient
+      .from('mensagens')
+      .on('INSERT', (data) => {
+        adicionaMensagem(data.new);
+      })
+      .on('DELETE', () => {
+        atualizaMensagens();
+      })
+      .subscribe();
+  }
+
+  React.useEffect(() => {
+    atualizaMensagens();
+    escutaMensagemEmTempoReal((novaMensagem) => {
+      setListaDeMensagens((valorAtualDaLista) => {
+        return [novaMensagem, ...valorAtualDaLista];
+      });
+    });
   }, []);
-  // Sua lógica vai aqui
+
   function handleNovaMensagem(novaMensagem) {
     const mensagem = {
-      de: 'brunoaffonso',
+      de: usuarioLogado,
       texto: novaMensagem,
     };
 
     supabaseClient
       .from('mensagens')
       .insert([mensagem])
-      .then((response) => {
-        console.log(response);
+      .then(({ data }) => {
+        // console.log(data);
       });
-    setListaDeMensagens([mensagem, ...listaDeMensagens]);
+
     setMensagem('');
   }
 
-  function deletaMensagem(idMensagem) {
-    const novaLista = listaDeMensagens.filter((mensagem) => {
-      return mensagem.id !== idMensagem;
-    });
-    setListaDeMensagens(novaLista);
-    console.log(listaDeMensagens);
+  // function deletaMensagem(idMensagem) {
+  //   const novaLista = listaDeMensagens.filter((mensagem) => {
+  //     console.log(idMensagem);
+  //     // return mensagem.id !== idMensagem;
+  //   });
+  //   // setListaDeMensagens(novaLista);
+  //   // console.log(listaDeMensagens);
+  // }
+
+  async function deletaMensagem(idMensagem) {
+    await supabaseClient.from('mensagens').delete().match({ id: idMensagem });
+    atualizaMensagens();
   }
 
-  // ./Sua lógica vai aqui
   return (
     <Box
       styleSheet={{
@@ -127,12 +160,21 @@ export default function ChatPage() {
                 color: appConfig.theme.colors.neutrals[200],
               }}
             />
+            <ButtonSendSticker
+              onStickerClick={(sticker) => {
+                handleNovaMensagem(`:sticker:${sticker}`);
+              }}
+            />
             <Button
               type="submit"
               variant="tertiary"
               colorVariant="neutral"
               label="Enviar"
               onClick={() => handleNovaMensagem(mensagem)}
+              styleSheet={{
+                marginLeft: '10px',
+                marginRight: '10px',
+              }}
             />
           </Box>
         </Box>
@@ -230,7 +272,11 @@ function MessageList(props) {
                   {new Date().toLocaleDateString()}
                 </Text>
               </Box>
-              {mensagem.texto}
+              {mensagem.texto.startsWith(':sticker:') ? (
+                <Image src={mensagem.texto.replace(':sticker:', '')} />
+              ) : (
+                mensagem.texto
+              )}
             </Text>
             <Box>
               <Button
