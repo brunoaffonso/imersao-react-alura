@@ -4,10 +4,13 @@ import appConfig from '../config.json';
 import { useRouter } from 'next/router';
 import { createClient } from '@supabase/supabase-js';
 import { ButtonSendSticker } from '../src/components/ButtonSendSticker';
-import { SUPABASE_ANON_KEY, SUPABASE_URL } from '../.env';
+// import { SUPABASE_ANON_KEY, SUPABASE_URL } from '../.env';
 
 // Criar arquivo .env.js e colocar as Keys SUPABASE_URL e SUPABASE_ANON_KEY
-const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabaseClient = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY
+);
 
 export default function ChatPage() {
   const roteamento = useRouter();
