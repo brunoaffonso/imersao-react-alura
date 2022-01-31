@@ -8,8 +8,8 @@ import { ButtonSendSticker } from '../src/components/ButtonSendSticker';
 
 // Criar arquivo .env.js e colocar as Keys SUPABASE_URL e SUPABASE_ANON_KEY
 const supabaseClient = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
 
 export default function ChatPage() {
